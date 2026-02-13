@@ -1,0 +1,46 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Update the bookings/inquiries admin section UX",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Add client-side free-text search, service-type filter UI, and a manual refresh control to the authenticated Booking Inquiries admin section.",
+      "acceptanceCriteria": [
+        "When the user is authenticated and the Bookings section is visible, a search input is shown and filters the displayed inquiry cards client-side in real time (case-insensitive) across name/phone/email/message.",
+        "A service-type filter control is shown; selecting a service type restricts the displayed inquiries to that service type.",
+        "A Refresh action is available and triggers a refetch so newly submitted inquiries appear without reloading the page.",
+        "If search text is present and the selected service filter would otherwise match results, both filters apply together (intersection).",
+        "All user-facing UI text for the added controls is in English."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/sections/BookingsSection.tsx",
+          "operation": "modify",
+          "description": "Enhance the existing Booking Inquiries UI by adding: (1) a free-text search input that filters the currently displayed inquiries in real time (case-insensitive) across customerName/phoneNumber/email/message; (2) a service-type filter control (include an 'All services' option) whose selected value is stored in component state; and (3) a 'Refresh' control that triggers a refetch of whichever inquiry query is currently driving the list. Keep all added user-facing text in English and ensure search + service filter apply together (intersection) on the rendered list. Continue composing existing shadcn-ui based primitives already used in this section (Card/Badge/Alert/Skeleton) for consistent styling (do not edit files under frontend/src/components/ui). Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Create a dedicated React Query hook to fetch inquiries by service type and wire it into the Bookings service-type filter to avoid fetching all inquiries when filtering.",
+      "acceptanceCriteria": [
+        "A new hook exists in frontend/src/hooks/useQueries.ts that calls the backend method getInquiriesByServiceType(serviceType) and is keyed distinctly (e.g., includes the service type in the query key).",
+        "When a specific service type filter is selected, the Bookings section uses the service-type query results (not the full list) to render inquiry cards.",
+        "When the service-type filter is cleared (e.g., 'All services'), the Bookings section returns to using the existing getAllInquiries query."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add a new React Query hook (e.g., useGetInquiriesByServiceType) that calls actor.getInquiriesByServiceType(serviceType), uses a query key that includes the selected serviceType, and is enabled only when the actor is available (and the serviceType filter is set)."
+        },
+        {
+          "path": "frontend/src/components/sections/BookingsSection.tsx",
+          "operation": "modify",
+          "description": "Wire the service-type filter to use the new useGetInquiriesByServiceType hook when a specific service is selected, and fall back to the existing useGetAllInquiries hook when 'All services' is selected. Ensure the Refresh control refetches the active query (service-specific or all-inquiries) so newly submitted inquiries can be pulled in without a full page reload. Verify the component's usage instructions before implementing."
+        }
+      ]
+    }
+  ]
+}

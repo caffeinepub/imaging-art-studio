@@ -1,0 +1,69 @@
+{
+  "kind": "build_request",
+  "title": "Update the bookings/inquiries admin section UX",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Enhance the existing authenticated \"Booking Inquiries\" admin section to support quickly finding and updating the list of inquiries by adding: (1) a free-text search (matches customer name, phone number, email, and message), (2) a service-type filter, and (3) a manual \"Refresh\" control that re-fetches inquiries on demand.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "update thhis"
+        ]
+      },
+      "acceptanceCriteria": [
+        "When the user is authenticated and the Bookings section is visible, a search input is shown and filters the displayed inquiry cards client-side in real time (case-insensitive) across name/phone/email/message.",
+        "A service-type filter control is shown; selecting a service type restricts the displayed inquiries to that service type.",
+        "A Refresh action is available and triggers a refetch so newly submitted inquiries appear without reloading the page.",
+        "If search text is present and the selected service filter would otherwise match results, both filters apply together (intersection).",
+        "All user-facing UI text for the added controls is in English."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Add a dedicated frontend React Query hook for retrieving inquiries by service type using the existing backend API, and use it to power the service-type filter so filtering does not require fetching all inquiries when a specific service is selected.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "update thhis"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A new hook exists in frontend/src/hooks/useQueries.ts that calls the backend method getInquiriesByServiceType(serviceType) and is keyed distinctly (e.g., includes the service type in the query key).",
+        "When a specific service type filter is selected, the Bookings section uses the service-type query results (not the full list) to render inquiry cards.",
+        "When the service-type filter is cleared (e.g., 'All services'), the Bookings section returns to using the existing getAllInquiries query."
+      ]
+    }
+  ],
+  "constraints": [
+    "Do not edit files under frontend/src/components/ui (compose existing UI components instead).",
+    "Do not modify immutable hook files listed in SYSTEM_CONTEXT (e.g., frontend/src/hooks/useInternetIdentity.ts(x), frontend/src/hooks/useActor.ts, frontend/src/main.tsx).",
+    "Keep the backend as a single Motoko actor in backend/main.mo; do not introduce additional canisters/services."
+  ],
+  "nonGoals": [
+    "Adding a new backend data model or changing inquiry persistence (use existing Inquiry model and APIs).",
+    "Implementing real-time updates (no websockets/push).",
+    "Adding third-party integrations (email/SMS/CRM) or external databases."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
+  }
+}

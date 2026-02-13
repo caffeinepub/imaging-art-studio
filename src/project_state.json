@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "New project",
+  "architectural_notes": [],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-enhance-the-existing-authenticated-booking-inquiries-admin-section-to-support-quickly-finding-and-updating-the-list-of-inquiries-by-adding-1-a-free-text-search-matches-customer-name-phone-number-email-and-message-2-a-service-type-filter-and-3-a-manual-refresh-control-that-re-fetches-inquiries-on-demand",
+      "title": "Enhance the existing authenticated \"Booking Inquiries\" admin section to support quickly finding and updating the list of inquiries by adding: (1) a free-text search (matches customer name, phone number, email, and message), (2) a service-type filter, and (3) a manual \"Refresh\" control that re-fetches inquiries on demand.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-dedicated-frontend-react-query-hook-for-retrieving-inquiries-by-service-type-using-the-existing-backend-api-and-use-it-to-power-the-service-type-filter-so-filtering-does-not-require-fetching-all-inquiries-when-a-specific-service-is-selected",
+      "title": "Add a dedicated frontend React Query hook for retrieving inquiries by service type using the existing backend API, and use it to power the service-type filter so filtering does not require fetching all inquiries when a specific service is selected.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [],
+  "projectName": "Update the bookings/inquiries admin section UX",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

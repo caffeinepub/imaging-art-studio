@@ -1,0 +1,44 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-enhance-the-existing-authenticated-booking-inquiries-admin-section-to-support-quickly-finding-and-updating-the-list-of-inquiries-by-adding-1-a-free-text-search-matches-customer-name-phone-number-email-and-message-2-a-service-type-filter-and-3-a-manual-refresh-control-that-re-fetches-inquiries-on-demand",
+      "featureTitle": "Enhance the existing authenticated \"Booking Inquiries\" admin section to support quickly finding and updating the list of inquiries by adding: (1) a free-text search (matches customer name, phone number, email, and message), (2) a service-type filter, and (3) a manual \"Refresh\" control that re-fetches inquiries on demand.",
+      "files": [
+        "frontend/src/components/sections/BookingsSection.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-dedicated-frontend-react-query-hook-for-retrieving-inquiries-by-service-type-using-the-existing-backend-api-and-use-it-to-power-the-service-type-filter-so-filtering-does-not-require-fetching-all-inquiries-when-a-specific-service-is-selected",
+      "featureTitle": "Add a dedicated frontend React Query hook for retrieving inquiries by service type using the existing backend API, and use it to power the service-type filter so filtering does not require fetching all inquiries when a specific service is selected.",
+      "files": [
+        "frontend/src/components/sections/BookingsSection.tsx",
+        "frontend/src/hooks/useQueries.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    }
+  ]
+}
