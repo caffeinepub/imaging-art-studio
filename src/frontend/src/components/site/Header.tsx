@@ -1,16 +1,22 @@
 import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { useInternetIdentity } from '@/hooks/useInternetIdentity';
+import { useIsCallerAdmin, useRecordBehaviorEvent } from '@/hooks/useQueries';
 import { LoginButton } from '@/components/auth/LoginButton';
+import { SiteSearch } from './SiteSearch';
+import { SearchResult } from '@/utils/siteSearch';
+import { BEHAVIOR_EVENT_TYPES, BEHAVIOR_ACTIONS, formatEventDetails } from '@/utils/behaviorTracking';
 
 interface HeaderProps {
-  onNavigate: (sectionId: string) => void;
+  onNavigate: (sectionId: string, context?: { category?: string; itemId?: string }) => void;
 }
 
 export function Header({ onNavigate }: HeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { identity } = useInternetIdentity();
+  const { data: isAdmin } = useIsCallerAdmin();
+  const recordBehaviorMutation = useRecordBehaviorEvent();
 
   const isAuthenticated = !!identity;
 
@@ -30,14 +36,44 @@ export function Header({ onNavigate }: HeaderProps) {
     { label: 'Contact', id: 'contact' },
   ];
 
-  // Add Bookings nav item only when authenticated
+  // Add Inquiries nav item only when authenticated
   if (isAuthenticated) {
-    navItems.push({ label: 'Bookings', id: 'bookings' });
+    navItems.push({ label: 'Inquiries', id: 'bookings' });
+  }
+
+  // Add admin-only nav items
+  if (isAuthenticated && isAdmin) {
+    navItems.push({ label: 'Search Analytics', id: 'search-analytics' });
+    navItems.push({ label: 'Feedback Review', id: 'feedback-review' });
+    navItems.push({ label: 'Behavior Analytics', id: 'behavior-analytics' });
   }
 
   const handleNavClick = (id: string) => {
     onNavigate(id);
     setIsMobileMenuOpen(false);
+  };
+
+  const handleSearchNavigate = (result: SearchResult) => {
+    const context: { category?: string; itemId?: string } = {};
+    
+    if (result.category) {
+      context.category = result.category;
+    }
+    if (result.itemId) {
+      context.itemId = result.itemId;
+    }
+
+    onNavigate(result.sectionId, context);
+    setIsMobileMenuOpen(false);
+  };
+
+  const handleBookNowClick = () => {
+    // Record click event asynchronously (non-blocking)
+    recordBehaviorMutation.mutate({
+      eventType: BEHAVIOR_EVENT_TYPES.CLICK,
+      details: formatEventDetails({ action: BEHAVIOR_ACTIONS.CLICK_HEADER_BOOK_NOW }),
+    });
+    handleNavClick('contact');
   };
 
   return (
@@ -72,6 +108,7 @@ export function Header({ onNavigate }: HeaderProps) {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6">
+            <SiteSearch onNavigate={handleSearchNavigate} />
             {navItems.map((item) => (
               <button
                 key={item.id}
@@ -84,7 +121,7 @@ export function Header({ onNavigate }: HeaderProps) {
             ))}
             <LoginButton />
             <button
-              onClick={() => handleNavClick('contact')}
+              onClick={handleBookNowClick}
               className="px-6 py-2.5 bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors shadow-warm"
             >
               Book Now
@@ -106,6 +143,9 @@ export function Header({ onNavigate }: HeaderProps) {
       {isMobileMenuOpen && (
         <div className="md:hidden bg-background border-t border-border">
           <nav className="container mx-auto px-4 py-6 flex flex-col gap-4">
+            <div className="mb-2">
+              <SiteSearch onNavigate={handleSearchNavigate} isMobile />
+            </div>
             {navItems.map((item) => (
               <button
                 key={item.id}
@@ -119,7 +159,7 @@ export function Header({ onNavigate }: HeaderProps) {
               <LoginButton />
             </div>
             <button
-              onClick={() => handleNavClick('contact')}
+              onClick={handleBookNowClick}
               className="mt-2 px-6 py-3 bg-primary text-primary-foreground text-base font-medium hover:bg-primary/90 transition-colors shadow-warm text-center"
             >
               Book Now

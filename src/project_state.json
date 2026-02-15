@@ -1,30 +1,89 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "New project",
+  "summary": "Project to add customer data collection features (contacts, feedback, and behavior tracking) including a search-tracking view.",
   "architectural_notes": [],
   "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-enhance-the-existing-authenticated-booking-inquiries-admin-section-to-support-quickly-finding-and-updating-the-list-of-inquiries-by-adding-1-a-free-text-search-matches-customer-name-phone-number-email-and-message-2-a-service-type-filter-and-3-a-manual-refresh-control-that-re-fetches-inquiries-on-demand",
-      "title": "Enhance the existing authenticated \"Booking Inquiries\" admin section to support quickly finding and updating the list of inquiries by adding: (1) a free-text search (matches customer name, phone number, email, and message), (2) a service-type filter, and (3) a manual \"Refresh\" control that re-fetches inquiries on demand.",
-      "reqIds": [
-        "REQ-1"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-a-dedicated-frontend-react-query-hook-for-retrieving-inquiries-by-service-type-using-the-existing-backend-api-and-use-it-to-power-the-service-type-filter-so-filtering-does-not-require-fetching-all-inquiries-when-a-specific-service-is-selected",
-      "title": "Add a dedicated frontend React Query hook for retrieving inquiries by service type using the existing backend API, and use it to power the service-type filter so filtering does not require fetching all inquiries when a specific service is selected.",
+      "id": "feature-add-a-frontend-feedback-collection-ui-that-allows-visitors-to-submit-feedback-rating-optional-written-feedback-with-clear-success-error-states-and-wire-it-to-the-backend-feedback-submission-api",
+      "title": "Add a frontend feedback collection UI that allows visitors to submit feedback (rating + optional written feedback) with clear success/error states, and wire it to the backend feedback submission API.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-add-an-authenticated-admin-only-frontend-view-to-review-collected-feedback-submissions-including-basic-filtering-search-and-a-manual-refresh-control",
+      "title": "Add an authenticated, admin-only frontend view to review collected feedback submissions, including basic filtering/search and a manual refresh control.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-instrument-the-frontend-to-record-behavior-events-record-a-view-event-when-a-site-section-is-navigated-to-via-the-header-navigation-cta-scroll-and-record-click-events-for-primary-ctas-e-g-book-now-and-key-interactions-e-g-portfolio-item-open",
+      "title": "Instrument the frontend to record behavior events: record a view event when a site section is navigated to via the header navigation/CTA scroll, and record click events for primary CTAs (e.g., “Book Now”) and key interactions (e.g., portfolio item open).",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-an-authenticated-admin-only-frontend-behavior-analytics-view-that-shows-recent-view-click-events-and-simple-aggregates-top-sections-actions-with-refresh-loading-empty-and-error-states",
+      "title": "Add an authenticated, admin-only frontend behavior analytics view that shows recent view/click events and simple aggregates (top sections/actions) with refresh, loading, empty, and error states.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-contact-data-collection-supports-admin-review-verify-the-existing-inquiry-contact-submissions-flow-is-accessible-in-an-authenticated-view-and-add-an-explicit-navigation-item-for-admins-users-to-access-inquiries-if-not-already-discoverable",
+      "title": "Ensure contact data collection supports admin review: verify the existing inquiry/contact submissions flow is accessible in an authenticated view, and add an explicit navigation item for admins/users to access inquiries if not already discoverable.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
     }
   ],
-  "new_feature_requests": [],
-  "projectName": "Update the bookings/inquiries admin section UX",
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Add website contact data collection (e.g., lead/contact form capturing name, phone/email, message)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Add customer feedback collection (post-purchase survey and/or on-site feedback form)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Add customer behavior tracking (page views, clicks, searches) including a search-tracking view/analytics integration",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Add backend support to collect and store customer feedback submissions (e.g., rating and free-text feedback) from all visitors (including anonymous), and restrict feedback retrieval APIs to authenticated users with admin permission.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Add backend support for customer behavior tracking beyond search terms by recording page/section views and key click events, and restrict behavior analytics retrieval APIs to authenticated users with admin permission.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "status": "pending"
+    }
+  ],
+  "projectName": "Add customer data collection: contacts, feedback, and behavior tracking",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

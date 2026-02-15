@@ -1,48 +1,134 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-13T07:27:02.453Z",
+  "generatedAt": "2026-02-13T08:55:47.220Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
-    "implemented": 2,
+    "total": 7,
+    "implemented": 5,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Enhance the existing authenticated \"Booking Inquiries\" admin section to support quickly finding and updating the list of inquiries by adding: (1) a free-text search (matches customer name, phone number, email, and message), (2) a service-type filter, and (3) a manual \"Refresh\" control that re-fetches inquiries on demand.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/sections/BookingsSection.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/sections/BookingsSection.tsx"
-        ]
+        "summary": "Add backend support to collect and store customer feedback submissions (e.g., rating and free-text feedback) from all visitors (including anonymous), and restrict feedback retrieval APIs to authenticated users with admin permission.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-2",
-        "summary": "Add a dedicated frontend React Query hook for retrieving inquiries by service type using the existing backend API, and use it to power the service-type filter so filtering does not require fetching all inquiries when a specific service is selected.",
+        "summary": "Add a frontend feedback collection UI that allows visitors to submit feedback (rating + optional written feedback) with clear success/error states, and wire it to the backend feedback submission API.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/hooks/useQueries.ts",
-          "frontend/src/components/sections/BookingsSection.tsx"
+          "frontend/src/components/sections/FeedbackSection.tsx",
+          "frontend/src/App.tsx"
         ],
         "matchedFiles": [
           "frontend/src/hooks/useQueries.ts",
-          "frontend/src/components/sections/BookingsSection.tsx"
+          "frontend/src/components/sections/FeedbackSection.tsx",
+          "frontend/src/App.tsx"
+        ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Add an authenticated, admin-only frontend view to review collected feedback submissions, including basic filtering/search and a manual refresh control.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/sections/FeedbackReviewSection.tsx",
+          "frontend/src/App.tsx",
+          "frontend/src/components/site/Header.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/sections/FeedbackReviewSection.tsx",
+          "frontend/src/App.tsx",
+          "frontend/src/components/site/Header.tsx"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Add backend support for customer behavior tracking beyond search terms by recording page/section views and key click events, and restrict behavior analytics retrieval APIs to authenticated users with admin permission.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-5",
+        "summary": "Instrument the frontend to record behavior events: record a view event when a site section is navigated to via the header navigation/CTA scroll, and record click events for primary CTAs (e.g., “Book Now”) and key interactions (e.g., portfolio item open).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/utils/behaviorTracking.ts",
+          "frontend/src/App.tsx",
+          "frontend/src/components/site/Header.tsx",
+          "frontend/src/components/sections/HeroSection.tsx",
+          "frontend/src/components/sections/PortfolioSection.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/utils/behaviorTracking.ts",
+          "frontend/src/App.tsx",
+          "frontend/src/components/site/Header.tsx",
+          "frontend/src/components/sections/HeroSection.tsx",
+          "frontend/src/components/sections/PortfolioSection.tsx"
+        ]
+      },
+      {
+        "id": "REQ-6",
+        "summary": "Add an authenticated, admin-only frontend behavior analytics view that shows recent view/click events and simple aggregates (top sections/actions) with refresh, loading, empty, and error states.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/sections/BehaviorAnalyticsSection.tsx",
+          "frontend/src/App.tsx",
+          "frontend/src/components/site/Header.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/sections/BehaviorAnalyticsSection.tsx",
+          "frontend/src/App.tsx",
+          "frontend/src/components/site/Header.tsx"
+        ]
+      },
+      {
+        "id": "REQ-7",
+        "summary": "Ensure contact data collection supports admin review: verify the existing inquiry/contact submissions flow is accessible in an authenticated view, and add an explicit navigation item for admins/users to access inquiries if not already discoverable.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/site/Header.tsx",
+          "frontend/src/App.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/site/Header.tsx",
+          "frontend/src/App.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/sections/BookingsSection.tsx",
+    "frontend/src/App.tsx",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/components/sections/BehaviorAnalyticsSection.tsx",
+    "frontend/src/components/sections/FeedbackReviewSection.tsx",
+    "frontend/src/components/sections/FeedbackSection.tsx",
+    "frontend/src/components/sections/HeroSection.tsx",
+    "frontend/src/components/sections/PortfolioSection.tsx",
+    "frontend/src/components/site/Header.tsx",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
     "frontend/src/hooks/useQueries.ts",
+    "frontend/src/utils/behaviorTracking.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

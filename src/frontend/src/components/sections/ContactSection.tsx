@@ -1,15 +1,16 @@
 import { useState } from 'react';
-import { MapPin, Phone, Mail, Clock, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
-import { contactInfo } from '@/config/contactInfo';
 import { useSubmitInquiry } from '@/hooks/useQueries';
 import { ServiceType } from '@/backend';
-import { serviceTypeOptions, validateEmail, validateRequired, validatePhone } from '@/utils/inquiry';
-import { Button } from '@/components/ui/button';
+import { validateEmail, validatePhone, validateRequired, getServiceTypeLabel, serviceTypeOptions } from '@/utils/inquiry';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Phone, Mail, MapPin, Clock, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { contactInfo } from '@/config/contactInfo';
 
 export function ContactSection() {
   const [formData, setFormData] = useState({
@@ -21,27 +22,33 @@ export function ContactSection() {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [showSuccess, setShowSuccess] = useState(false);
+  const submitInquiryMutation = useSubmitInquiry();
 
-  const submitInquiry = useSubmitInquiry();
+  const handleInputChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
+  };
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.serviceType) {
-      newErrors.serviceType = 'Please select a service';
+    if (!validateRequired(formData.serviceType)) {
+      newErrors.serviceType = 'Please select a service type';
     }
     if (!validateRequired(formData.customerName)) {
       newErrors.customerName = 'Name is required';
     }
-    if (!validateRequired(formData.phoneNumber)) {
-      newErrors.phoneNumber = 'Phone number is required';
-    } else if (!validatePhone(formData.phoneNumber)) {
+    if (!validatePhone(formData.phoneNumber)) {
       newErrors.phoneNumber = 'Please enter a valid phone number';
     }
-    if (!validateRequired(formData.email)) {
-      newErrors.email = 'Email is required';
-    } else if (!validateEmail(formData.email)) {
+    if (!validateEmail(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
     }
     if (!validateRequired(formData.message)) {
@@ -54,14 +61,13 @@ export function ContactSection() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setShowSuccess(false);
 
     if (!validateForm()) {
       return;
     }
 
     try {
-      await submitInquiry.mutateAsync({
+      await submitInquiryMutation.mutateAsync({
         serviceType: formData.serviceType as ServiceType,
         customerName: formData.customerName,
         phoneNumber: formData.phoneNumber,
@@ -77,114 +83,90 @@ export function ContactSection() {
         email: '',
         message: '',
       });
-      setErrors({});
-      setShowSuccess(true);
-
-      // Hide success message after 5 seconds
-      setTimeout(() => setShowSuccess(false), 5000);
     } catch (error) {
       console.error('Failed to submit inquiry:', error);
     }
   };
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    // Clear error for this field when user starts typing
-    if (errors[field]) {
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[field];
-        return newErrors;
-      });
-    }
-  };
-
   return (
-    <section id="contact" className="py-24 md:py-32 bg-background">
+    <section id="contact" className="py-24 md:py-32 bg-muted/30">
       <div className="container mx-auto px-4">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="font-serif text-4xl md:text-5xl font-light mb-6">
             Get in Touch
           </h2>
           <p className="text-lg text-muted-foreground leading-relaxed">
-            Ready to capture your special moments? Contact us today to discuss your photography needs and book your session.
+            Ready to capture your special moments? Reach out to us and let's create something beautiful together.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Contact Information */}
           <div className="space-y-8">
             <div>
-              <h3 className="font-serif text-2xl font-normal mb-6">
-                Contact Information
-              </h3>
+              <h3 className="font-serif text-2xl font-normal mb-6">Contact Information</h3>
               <div className="space-y-6">
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-accent/10 flex items-center justify-center">
-                    <MapPin size={20} className="text-accent" />
+                <div className="flex items-start gap-4">
+                  <div className="shrink-0 w-12 h-12 bg-accent/10 flex items-center justify-center rounded">
+                    <Phone className="h-5 w-5 text-accent" />
                   </div>
                   <div>
-                    <div className="font-medium text-foreground mb-1">Address</div>
-                    <div className="text-muted-foreground">
-                      {contactInfo.address.line1}<br />
-                      {contactInfo.address.line2}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-accent/10 flex items-center justify-center">
-                    <Phone size={20} className="text-accent" />
-                  </div>
-                  <div>
-                    <div className="font-medium text-foreground mb-1">Phone</div>
-                    <div className="text-muted-foreground space-y-1">
+                    <h4 className="font-medium mb-2">Phone</h4>
+                    <div className="space-y-1">
                       {contactInfo.phones.map((phone, index) => (
-                        <div key={index}>
-                          <a
-                            href={`tel:${phone.tel}`}
-                            className="hover:text-accent focus-visible:text-accent focus-visible:outline-none focus-visible:underline transition-colors"
-                            aria-label={phone.label}
-                          >
-                            {phone.display}
-                          </a>
-                        </div>
+                        <a
+                          key={index}
+                          href={`tel:${phone.tel}`}
+                          className="block text-muted-foreground hover:text-accent transition-colors"
+                        >
+                          {phone.display}
+                        </a>
                       ))}
                     </div>
                   </div>
                 </div>
 
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-accent/10 flex items-center justify-center">
-                    <Mail size={20} className="text-accent" />
+                <div className="flex items-start gap-4">
+                  <div className="shrink-0 w-12 h-12 bg-accent/10 flex items-center justify-center rounded">
+                    <Mail className="h-5 w-5 text-accent" />
                   </div>
                   <div>
-                    <div className="font-medium text-foreground mb-1">Email</div>
-                    <div className="text-muted-foreground space-y-1">
-                      {contactInfo.emails.map((email, index) => (
-                        <div key={index}>
-                          <a
-                            href={`mailto:${email.address}`}
-                            className="hover:text-accent focus-visible:text-accent focus-visible:outline-none focus-visible:underline transition-colors"
-                            aria-label={email.label}
-                          >
-                            {email.address}
-                          </a>
-                        </div>
-                      ))}
-                    </div>
+                    <h4 className="font-medium mb-2">Email</h4>
+                    {contactInfo.emails.map((email, index) => (
+                      <a
+                        key={index}
+                        href={`mailto:${email.address}`}
+                        className="text-muted-foreground hover:text-accent transition-colors"
+                      >
+                        {email.address}
+                      </a>
+                    ))}
                   </div>
                 </div>
 
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-accent/10 flex items-center justify-center">
-                    <Clock size={20} className="text-accent" />
+                <div className="flex items-start gap-4">
+                  <div className="shrink-0 w-12 h-12 bg-accent/10 flex items-center justify-center rounded">
+                    <MapPin className="h-5 w-5 text-accent" />
                   </div>
                   <div>
-                    <div className="font-medium text-foreground mb-1">Business Hours</div>
-                    <div className="text-muted-foreground">
-                      {contactInfo.hours.weekdays}<br />
-                      {contactInfo.hours.sunday}
+                    <h4 className="font-medium mb-2">Location</h4>
+                    <p className="text-muted-foreground leading-relaxed">
+                      {contactInfo.address.line1}
+                      <br />
+                      {contactInfo.address.line2}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="shrink-0 w-12 h-12 bg-accent/10 flex items-center justify-center rounded">
+                    <Clock className="h-5 w-5 text-accent" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium mb-2">Business Hours</h4>
+                    <div className="space-y-1 text-muted-foreground">
+                      <p>{contactInfo.hours.weekdays}</p>
+                      <p>{contactInfo.hours.sunday}</p>
                     </div>
                   </div>
                 </div>
@@ -192,142 +174,131 @@ export function ContactSection() {
             </div>
           </div>
 
-          {/* Contact Form */}
-          <div className="bg-card border border-border p-8 shadow-warm">
-            <h3 className="font-serif text-2xl font-normal mb-6">
-              Send us a Message
-            </h3>
-
-            {showSuccess && (
-              <Alert className="mb-6 border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950">
-                <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
-                <AlertDescription className="text-green-800 dark:text-green-200">
-                  Thank you for your inquiry! We'll get back to you soon.
-                </AlertDescription>
-              </Alert>
-            )}
-
-            {submitInquiry.isError && (
-              <Alert variant="destructive" className="mb-6">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  Failed to submit your inquiry. Please try again or contact us directly.
-                </AlertDescription>
-              </Alert>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <Label htmlFor="service" className="text-sm font-medium text-foreground mb-2">
-                  Service Interested In
-                </Label>
-                <Select
-                  value={formData.serviceType}
-                  onValueChange={(value) => handleInputChange('serviceType', value)}
-                >
-                  <SelectTrigger
-                    id="service"
-                    className={`w-full ${errors.serviceType ? 'border-destructive' : ''}`}
+          {/* Booking Form */}
+          <Card className="shadow-warm">
+            <CardHeader>
+              <CardTitle className="font-serif text-2xl font-normal">Book a Session</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="serviceType">Service Type *</Label>
+                  <Select
+                    value={formData.serviceType}
+                    onValueChange={(value) => handleInputChange('serviceType', value)}
                   >
-                    <SelectValue placeholder="Select a service" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {serviceTypeOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.serviceType && (
-                  <p className="text-sm text-destructive mt-1">{errors.serviceType}</p>
-                )}
-              </div>
+                    <SelectTrigger id="serviceType" className={errors.serviceType ? 'border-destructive' : ''}>
+                      <SelectValue placeholder="Select a service" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {serviceTypeOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.serviceType && (
+                    <p className="text-sm text-destructive">{errors.serviceType}</p>
+                  )}
+                </div>
 
-              <div>
-                <Label htmlFor="name" className="text-sm font-medium text-foreground mb-2">
-                  Your Name
-                </Label>
-                <Input
-                  type="text"
-                  id="name"
-                  value={formData.customerName}
-                  onChange={(e) => handleInputChange('customerName', e.target.value)}
-                  placeholder="Enter your name"
-                  className={errors.customerName ? 'border-destructive' : ''}
-                />
-                {errors.customerName && (
-                  <p className="text-sm text-destructive mt-1">{errors.customerName}</p>
-                )}
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="customerName">Your Name *</Label>
+                  <Input
+                    id="customerName"
+                    type="text"
+                    placeholder="John Doe"
+                    value={formData.customerName}
+                    onChange={(e) => handleInputChange('customerName', e.target.value)}
+                    className={errors.customerName ? 'border-destructive' : ''}
+                  />
+                  {errors.customerName && (
+                    <p className="text-sm text-destructive">{errors.customerName}</p>
+                  )}
+                </div>
 
-              <div>
-                <Label htmlFor="phone" className="text-sm font-medium text-foreground mb-2">
-                  Phone Number
-                </Label>
-                <Input
-                  type="tel"
-                  id="phone"
-                  value={formData.phoneNumber}
-                  onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
-                  placeholder="+91 XXXXX XXXXX"
-                  className={errors.phoneNumber ? 'border-destructive' : ''}
-                />
-                {errors.phoneNumber && (
-                  <p className="text-sm text-destructive mt-1">{errors.phoneNumber}</p>
-                )}
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phoneNumber">Phone Number *</Label>
+                  <Input
+                    id="phoneNumber"
+                    type="tel"
+                    placeholder="+91 98765 43210"
+                    value={formData.phoneNumber}
+                    onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
+                    className={errors.phoneNumber ? 'border-destructive' : ''}
+                  />
+                  {errors.phoneNumber && (
+                    <p className="text-sm text-destructive">{errors.phoneNumber}</p>
+                  )}
+                </div>
 
-              <div>
-                <Label htmlFor="email" className="text-sm font-medium text-foreground mb-2">
-                  Email Address
-                </Label>
-                <Input
-                  type="email"
-                  id="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  placeholder="your.email@example.com"
-                  className={errors.email ? 'border-destructive' : ''}
-                />
-                {errors.email && (
-                  <p className="text-sm text-destructive mt-1">{errors.email}</p>
-                )}
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address *</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="john@example.com"
+                    value={formData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    className={errors.email ? 'border-destructive' : ''}
+                  />
+                  {errors.email && (
+                    <p className="text-sm text-destructive">{errors.email}</p>
+                  )}
+                </div>
 
-              <div>
-                <Label htmlFor="message" className="text-sm font-medium text-foreground mb-2">
-                  Message
-                </Label>
-                <Textarea
-                  id="message"
-                  rows={4}
-                  value={formData.message}
-                  onChange={(e) => handleInputChange('message', e.target.value)}
-                  placeholder="Tell us about your photography needs..."
-                  className={`resize-none ${errors.message ? 'border-destructive' : ''}`}
-                />
-                {errors.message && (
-                  <p className="text-sm text-destructive mt-1">{errors.message}</p>
-                )}
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="message">Message *</Label>
+                  <Textarea
+                    id="message"
+                    placeholder="Tell us about your photography needs..."
+                    rows={5}
+                    value={formData.message}
+                    onChange={(e) => handleInputChange('message', e.target.value)}
+                    className={errors.message ? 'border-destructive' : ''}
+                  />
+                  {errors.message && (
+                    <p className="text-sm text-destructive">{errors.message}</p>
+                  )}
+                </div>
 
-              <Button
-                type="submit"
-                disabled={submitInquiry.isPending}
-                className="w-full px-8 py-6 text-base font-medium shadow-warm hover:shadow-warm-lg"
-              >
-                {submitInquiry.isPending ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Submitting...
-                  </>
-                ) : (
-                  'Get a Quote'
+                {submitInquiryMutation.isSuccess && (
+                  <Alert className="bg-green-50 border-green-200">
+                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    <AlertDescription className="text-green-800">
+                      Thank you! Your inquiry has been submitted successfully. We'll get back to you soon.
+                    </AlertDescription>
+                  </Alert>
                 )}
-              </Button>
-            </form>
-          </div>
+
+                {submitInquiryMutation.isError && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      Failed to submit your inquiry. Please try again or contact us directly.
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                <Button
+                  type="submit"
+                  className="w-full"
+                  size="lg"
+                  disabled={submitInquiryMutation.isPending}
+                >
+                  {submitInquiryMutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Submitting...
+                    </>
+                  ) : (
+                    'Submit Inquiry'
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </section>

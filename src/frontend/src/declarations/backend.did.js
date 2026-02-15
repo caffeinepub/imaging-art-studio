@@ -13,6 +13,21 @@ export const UserRole = IDL.Variant({
   'user' : IDL.Null,
   'guest' : IDL.Null,
 });
+export const Time = IDL.Int;
+export const BehaviorEvent = IDL.Record({
+  'id' : IDL.Nat,
+  'timestamp' : Time,
+  'details' : IDL.Text,
+  'caller' : IDL.Principal,
+  'eventType' : IDL.Text,
+});
+export const FeedbackEntry = IDL.Record({
+  'id' : IDL.Nat,
+  'feedback' : IDL.Opt(IDL.Text),
+  'timestamp' : Time,
+  'caller' : IDL.Principal,
+  'rating' : IDL.Opt(IDL.Nat),
+});
 export const ServiceType = IDL.Variant({
   'event' : IDL.Null,
   'wedding' : IDL.Null,
@@ -21,7 +36,6 @@ export const ServiceType = IDL.Variant({
   'product' : IDL.Null,
   'preWedding' : IDL.Null,
 });
-export const Time = IDL.Int;
 export const Inquiry = IDL.Record({
   'id' : IDL.Nat,
   'customerName' : IDL.Text,
@@ -32,26 +46,67 @@ export const Inquiry = IDL.Record({
   'phoneNumber' : IDL.Text,
 });
 export const UserProfile = IDL.Record({ 'name' : IDL.Text });
+export const SearchEvent = IDL.Record({
+  'search' : IDL.Text,
+  'timestamp' : Time,
+  'caller' : IDL.Principal,
+});
 
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'getAllBehaviorEvents' : IDL.Func([], [IDL.Vec(BehaviorEvent)], ['query']),
+  'getAllFeedback' : IDL.Func([], [IDL.Vec(FeedbackEntry)], ['query']),
   'getAllInquiries' : IDL.Func([], [IDL.Vec(Inquiry)], ['query']),
+  'getAverageRating' : IDL.Func([], [IDL.Opt(IDL.Float64)], ['query']),
+  'getBehaviorEventsByType' : IDL.Func(
+      [IDL.Text],
+      [IDL.Vec(BehaviorEvent)],
+      ['query'],
+    ),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+  'getFeedbackById' : IDL.Func([IDL.Nat], [IDL.Opt(FeedbackEntry)], ['query']),
   'getInquiriesByServiceType' : IDL.Func(
       [ServiceType],
       [IDL.Vec(Inquiry)],
       ['query'],
     ),
   'getInquiryById' : IDL.Func([IDL.Nat], [IDL.Opt(Inquiry)], ['query']),
+  'getRecentBehaviorEvents' : IDL.Func(
+      [IDL.Nat],
+      [IDL.Vec(BehaviorEvent)],
+      ['query'],
+    ),
+  'getRecentSearchEvents' : IDL.Func(
+      [IDL.Nat],
+      [IDL.Vec(SearchEvent)],
+      ['query'],
+    ),
+  'getTopBehaviorEvents' : IDL.Func(
+      [IDL.Nat],
+      [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Nat))],
+      ['query'],
+    ),
+  'getTopSearchQueries' : IDL.Func(
+      [IDL.Nat],
+      [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Nat))],
+      ['query'],
+    ),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(UserProfile)],
       ['query'],
     ),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'recordBehaviorEvent' : IDL.Func([IDL.Text, IDL.Text], [IDL.Nat], []),
+  'recordSearchEvent' : IDL.Func([IDL.Text], [], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+  'submitFeedback' : IDL.Func(
+      [IDL.Opt(IDL.Nat), IDL.Opt(IDL.Text)],
+      [IDL.Nat],
+      [],
+    ),
   'submitInquiry' : IDL.Func(
       [ServiceType, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
       [IDL.Nat],
@@ -67,6 +122,21 @@ export const idlFactory = ({ IDL }) => {
     'user' : IDL.Null,
     'guest' : IDL.Null,
   });
+  const Time = IDL.Int;
+  const BehaviorEvent = IDL.Record({
+    'id' : IDL.Nat,
+    'timestamp' : Time,
+    'details' : IDL.Text,
+    'caller' : IDL.Principal,
+    'eventType' : IDL.Text,
+  });
+  const FeedbackEntry = IDL.Record({
+    'id' : IDL.Nat,
+    'feedback' : IDL.Opt(IDL.Text),
+    'timestamp' : Time,
+    'caller' : IDL.Principal,
+    'rating' : IDL.Opt(IDL.Nat),
+  });
   const ServiceType = IDL.Variant({
     'event' : IDL.Null,
     'wedding' : IDL.Null,
@@ -75,7 +145,6 @@ export const idlFactory = ({ IDL }) => {
     'product' : IDL.Null,
     'preWedding' : IDL.Null,
   });
-  const Time = IDL.Int;
   const Inquiry = IDL.Record({
     'id' : IDL.Nat,
     'customerName' : IDL.Text,
@@ -86,26 +155,71 @@ export const idlFactory = ({ IDL }) => {
     'phoneNumber' : IDL.Text,
   });
   const UserProfile = IDL.Record({ 'name' : IDL.Text });
+  const SearchEvent = IDL.Record({
+    'search' : IDL.Text,
+    'timestamp' : Time,
+    'caller' : IDL.Principal,
+  });
   
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'getAllBehaviorEvents' : IDL.Func([], [IDL.Vec(BehaviorEvent)], ['query']),
+    'getAllFeedback' : IDL.Func([], [IDL.Vec(FeedbackEntry)], ['query']),
     'getAllInquiries' : IDL.Func([], [IDL.Vec(Inquiry)], ['query']),
+    'getAverageRating' : IDL.Func([], [IDL.Opt(IDL.Float64)], ['query']),
+    'getBehaviorEventsByType' : IDL.Func(
+        [IDL.Text],
+        [IDL.Vec(BehaviorEvent)],
+        ['query'],
+      ),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+    'getFeedbackById' : IDL.Func(
+        [IDL.Nat],
+        [IDL.Opt(FeedbackEntry)],
+        ['query'],
+      ),
     'getInquiriesByServiceType' : IDL.Func(
         [ServiceType],
         [IDL.Vec(Inquiry)],
         ['query'],
       ),
     'getInquiryById' : IDL.Func([IDL.Nat], [IDL.Opt(Inquiry)], ['query']),
+    'getRecentBehaviorEvents' : IDL.Func(
+        [IDL.Nat],
+        [IDL.Vec(BehaviorEvent)],
+        ['query'],
+      ),
+    'getRecentSearchEvents' : IDL.Func(
+        [IDL.Nat],
+        [IDL.Vec(SearchEvent)],
+        ['query'],
+      ),
+    'getTopBehaviorEvents' : IDL.Func(
+        [IDL.Nat],
+        [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Nat))],
+        ['query'],
+      ),
+    'getTopSearchQueries' : IDL.Func(
+        [IDL.Nat],
+        [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Nat))],
+        ['query'],
+      ),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(UserProfile)],
         ['query'],
       ),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'recordBehaviorEvent' : IDL.Func([IDL.Text, IDL.Text], [IDL.Nat], []),
+    'recordSearchEvent' : IDL.Func([IDL.Text], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+    'submitFeedback' : IDL.Func(
+        [IDL.Opt(IDL.Nat), IDL.Opt(IDL.Text)],
+        [IDL.Nat],
+        [],
+      ),
     'submitInquiry' : IDL.Func(
         [ServiceType, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
         [IDL.Nat],

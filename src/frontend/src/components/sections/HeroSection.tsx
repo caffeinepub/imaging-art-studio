@@ -1,10 +1,35 @@
 import { Camera } from 'lucide-react';
+import { useRecordBehaviorEvent } from '@/hooks/useQueries';
+import { BEHAVIOR_EVENT_TYPES, BEHAVIOR_ACTIONS, formatEventDetails } from '@/utils/behaviorTracking';
 
 interface HeroSectionProps {
   onCtaClick: () => void;
 }
 
 export function HeroSection({ onCtaClick }: HeroSectionProps) {
+  const recordBehaviorMutation = useRecordBehaviorEvent();
+
+  const handleBookShootClick = () => {
+    // Record click event asynchronously (non-blocking)
+    recordBehaviorMutation.mutate({
+      eventType: BEHAVIOR_EVENT_TYPES.CLICK,
+      details: formatEventDetails({ action: BEHAVIOR_ACTIONS.CLICK_HERO_BOOK_SHOOT }),
+    });
+    onCtaClick();
+  };
+
+  const handleViewPortfolioClick = () => {
+    // Record click event asynchronously (non-blocking)
+    recordBehaviorMutation.mutate({
+      eventType: BEHAVIOR_EVENT_TYPES.CLICK,
+      details: formatEventDetails({ action: BEHAVIOR_ACTIONS.CLICK_HERO_VIEW_PORTFOLIO }),
+    });
+    const element = document.getElementById('portfolio');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image */}
@@ -40,18 +65,13 @@ export function HeroSection({ onCtaClick }: HeroSectionProps) {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
             <button
-              onClick={onCtaClick}
+              onClick={handleBookShootClick}
               className="px-8 py-4 bg-primary text-primary-foreground text-base font-medium hover:bg-primary/90 transition-all shadow-warm-lg hover:shadow-warm hover:scale-105"
             >
               Book a Shoot
             </button>
             <button
-              onClick={() => {
-                const element = document.getElementById('portfolio');
-                if (element) {
-                  element.scrollIntoView({ behavior: 'smooth' });
-                }
-              }}
+              onClick={handleViewPortfolioClick}
               className="px-8 py-4 bg-background/80 backdrop-blur-sm text-foreground text-base font-medium hover:bg-background transition-all border border-border"
             >
               View Portfolio

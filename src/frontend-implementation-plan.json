@@ -1,44 +1,156 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Update the bookings/inquiries admin section UX",
+  "title": "Customer data collection UI: feedback, admin review, and behavior tracking analytics",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Add client-side free-text search, service-type filter UI, and a manual refresh control to the authenticated Booking Inquiries admin section.",
-      "acceptanceCriteria": [
-        "When the user is authenticated and the Bookings section is visible, a search input is shown and filters the displayed inquiry cards client-side in real time (case-insensitive) across name/phone/email/message.",
-        "A service-type filter control is shown; selecting a service type restricts the displayed inquiries to that service type.",
-        "A Refresh action is available and triggers a refetch so newly submitted inquiries appear without reloading the page.",
-        "If search text is present and the selected service filter would otherwise match results, both filters apply together (intersection).",
-        "All user-facing UI text for the added controls is in English."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/sections/BookingsSection.tsx",
-          "operation": "modify",
-          "description": "Enhance the existing Booking Inquiries UI by adding: (1) a free-text search input that filters the currently displayed inquiries in real time (case-insensitive) across customerName/phoneNumber/email/message; (2) a service-type filter control (include an 'All services' option) whose selected value is stored in component state; and (3) a 'Refresh' control that triggers a refetch of whichever inquiry query is currently driving the list. Keep all added user-facing text in English and ensure search + service filter apply together (intersection) on the rendered list. Continue composing existing shadcn-ui based primitives already used in this section (Card/Badge/Alert/Skeleton) for consistent styling (do not edit files under frontend/src/components/ui). Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
       "id": "REQ-2",
-      "summary": "Create a dedicated React Query hook to fetch inquiries by service type and wire it into the Bookings service-type filter to avoid fetching all inquiries when filtering.",
+      "summary": "Add a public feedback form (rating + optional text) with success/error states, wired to backend feedback submission.",
       "acceptanceCriteria": [
-        "A new hook exists in frontend/src/hooks/useQueries.ts that calls the backend method getInquiriesByServiceType(serviceType) and is keyed distinctly (e.g., includes the service type in the query key).",
-        "When a specific service type filter is selected, the Bookings section uses the service-type query results (not the full list) to render inquiry cards.",
-        "When the service-type filter is cleared (e.g., 'All services'), the Bookings section returns to using the existing getAllInquiries query."
+        "A visible feedback form exists on the site (as a new section or within an appropriate existing section) and is usable on mobile and desktop.",
+        "Submitting valid feedback shows a success confirmation and resets the form.",
+        "Submission failures show an error message without breaking the rest of the page.",
+        "All user-facing text is in English."
       ],
       "file_operations": [
         {
           "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Add a new React Query hook (e.g., useGetInquiriesByServiceType) that calls actor.getInquiriesByServiceType(serviceType), uses a query key that includes the selected serviceType, and is enabled only when the actor is available (and the serviceType filter is set)."
+          "description": "Add React Query hooks for feedback submission (use submitFeedback) to support the public feedback form; keep failures non-fatal to the page. Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/components/sections/BookingsSection.tsx",
+          "path": "frontend/src/components/sections/FeedbackSection.tsx",
+          "operation": "create",
+          "description": "Create a new FeedbackSection that renders a rating input and optional written feedback, uses shadcn-ui components (e.g., Card, Button, Input/Textarea, Alert) for consistent UI, and shows clear loading/success/error states. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Wire the service-type filter to use the new useGetInquiriesByServiceType hook when a specific service is selected, and fall back to the existing useGetAllInquiries hook when 'All services' is selected. Ensure the Refresh control refetches the active query (service-specific or all-inquiries) so newly submitted inquiries can be pulled in without a full page reload. Verify the component's usage instructions before implementing."
+          "description": "Wire FeedbackSection into the main page flow as a visible section (with an id for navigation/scrolling) so both mobile and desktop visitors can access it. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Add an authenticated, admin-only feedback review section with search/filter, refresh, and robust loading/empty/error states.",
+      "acceptanceCriteria": [
+        "Only admins can see the feedback review section/page; non-admin authenticated users do not see it in navigation and cannot access it via direct UI links.",
+        "The feedback review UI lists recent submissions with timestamp, rating, and feedback text.",
+        "The UI provides at least a text search/filter over feedback content and a refresh button.",
+        "Loading, empty, and error states are handled gracefully."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add React Query hooks to fetch feedback submissions for admin review (use getAllFeedback and/or getFeedbackById when needed) and expose refetch for a manual refresh control. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/sections/FeedbackReviewSection.tsx",
+          "operation": "create",
+          "description": "Create an admin-only FeedbackReviewSection (patterned after SearchAnalyticsSection): gate rendering using useIsCallerAdmin, provide a text search/filter over feedback content, a Refresh button, and loading/empty/error states; render a list/table showing timestamp, rating, and feedback text. Use shadcn-ui components (Card, Table, Input, Button, Skeleton, Alert). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Render FeedbackReviewSection only when the user is authenticated (section itself must still gate by admin), and assign a stable section id for navigation/scrolling. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/site/Header.tsx",
+          "operation": "modify",
+          "description": "Add an admin-only navigation item for the feedback review section that only appears when authenticated and isAdmin is true, matching the existing Search Analytics nav gating. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Instrument navigation and key UI actions to record view/click behavior events asynchronously without disrupting UX.",
+      "acceptanceCriteria": [
+        "Using the site navigation to jump to a section results in a corresponding view event being recorded (non-blocking; failures do not disrupt UX).",
+        "Clicking primary CTAs records a click event with a stable action identifier (non-blocking; failures do not disrupt UX).",
+        "Event recording does not noticeably degrade page responsiveness (calls are asynchronous and do not block UI)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add a non-blocking React Query mutation hook for behavior tracking (use recordBehaviorEvent), configured to swallow errors (no user-facing disruption) and avoid blocking UI. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/utils/behaviorTracking.ts",
+          "operation": "create",
+          "description": "Add small helpers/constants for stable behavior action identifiers and view identifiers (e.g., section ids, CTA ids, portfolio-open action), and a safe event details formatter (e.g., JSON string) to keep event payloads consistent. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Instrument the existing scrollToSection navigation helper to asynchronously record a 'view' behavior event when invoked (header navigation / CTA-driven scroll), using stable identifiers from behaviorTracking utils; ensure calls do not block scrolling and failures are ignored. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/site/Header.tsx",
+          "operation": "modify",
+          "description": "Instrument primary header CTA clicks (e.g., \"Book Now\") to record a 'click' behavior event with a stable action identifier; ensure failures are silent and UI remains responsive. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/sections/HeroSection.tsx",
+          "operation": "modify",
+          "description": "Instrument primary hero CTAs (e.g., \"Book a Shoot\" and \"View Portfolio\") to record 'click' behavior events with stable action identifiers; ensure event recording is asynchronous and non-blocking. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/sections/PortfolioSection.tsx",
+          "operation": "modify",
+          "description": "Instrument portfolio item opens (lightbox launch) to record a 'click' behavior event (stable action id plus item id/category in details), ensuring it is asynchronous and does not affect modal behavior. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Add an authenticated, admin-only behavior analytics section showing recent events and simple aggregates with refresh and robust states.",
+      "acceptanceCriteria": [
+        "Only admins can see and access the behavior analytics section/page.",
+        "The view shows at least: (1) a table/list of recent events, and (2) one aggregated “top” table for views and/or clicks.",
+        "The view includes a refresh button and handles loading/empty/error states consistently with the existing Search Analytics section."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add React Query hooks for admin behavior analytics retrieval (use getRecentBehaviorEvents and getTopBehaviorEvents, and optionally getBehaviorEventsByType for filtering) that support manual refresh and consistent loading/error handling. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/sections/BehaviorAnalyticsSection.tsx",
+          "operation": "create",
+          "description": "Create an admin-only BehaviorAnalyticsSection aligned with SearchAnalyticsSection UI/UX: gate rendering using useIsCallerAdmin, show (1) recent events list/table and (2) a \"top\" aggregates table, include Refresh button, and handle loading/empty/error states using shadcn-ui components (Card, Table, Button, Skeleton, Alert). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Render BehaviorAnalyticsSection only when the user is authenticated (section itself must still gate by admin), and assign a stable section id for navigation/scrolling. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/site/Header.tsx",
+          "operation": "modify",
+          "description": "Add an admin-only navigation item for the behavior analytics section, visible only when authenticated and isAdmin is true, consistent with Search Analytics nav behavior. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "summary": "Ensure authenticated users have a clear navigation entry point to review booking inquiries and that the inquiries view remains auth-protected.",
+      "acceptanceCriteria": [
+        "Authenticated users can access a clear UI entry point to review booking inquiries (contacts/leads).",
+        "The inquiries review UI remains protected behind authentication and behaves correctly when logged out (not rendered or prompts login)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/site/Header.tsx",
+          "operation": "modify",
+          "description": "Verify the authenticated-only inquiries navigation entry is clear and explicitly labeled (e.g., rename \"Bookings\" to \"Inquiries\" if needed) while keeping it hidden when logged out; ensure no admin-only constraints are added beyond existing authentication gating. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Verify the inquiries review section (BookingsSection) remains rendered only when authenticated, preserving logged-out behavior (not rendered) while keeping navigation/scroll wiring consistent. Verify the component's usage instructions before implementing."
         }
       ]
     }

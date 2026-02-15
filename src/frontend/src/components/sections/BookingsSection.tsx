@@ -177,7 +177,7 @@ export function BookingsSection() {
                     <CardContent className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="flex items-center gap-3">
-                          <div className="flex-shrink-0 w-10 h-10 bg-accent/10 flex items-center justify-center rounded">
+                          <div className="shrink-0 w-10 h-10 bg-accent/10 flex items-center justify-center rounded">
                             <Phone className="h-4 w-4 text-accent" />
                           </div>
                           <div>
@@ -192,7 +192,7 @@ export function BookingsSection() {
                         </div>
 
                         <div className="flex items-center gap-3">
-                          <div className="flex-shrink-0 w-10 h-10 bg-accent/10 flex items-center justify-center rounded">
+                          <div className="shrink-0 w-10 h-10 bg-accent/10 flex items-center justify-center rounded">
                             <Mail className="h-4 w-4 text-accent" />
                           </div>
                           <div>
@@ -208,7 +208,7 @@ export function BookingsSection() {
                       </div>
 
                       <div className="flex gap-3 pt-2">
-                        <div className="flex-shrink-0 w-10 h-10 bg-accent/10 flex items-center justify-center rounded">
+                        <div className="shrink-0 w-10 h-10 bg-accent/10 flex items-center justify-center rounded">
                           <MessageSquare className="h-4 w-4 text-accent" />
                         </div>
                         <div className="flex-1">

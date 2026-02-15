@@ -1,69 +1,150 @@
 {
   "kind": "build_request",
-  "title": "Update the bookings/inquiries admin section UX",
+  "title": "Add customer data collection: contacts, feedback, and behavior tracking",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Enhance the existing authenticated \"Booking Inquiries\" admin section to support quickly finding and updating the list of inquiries by adding: (1) a free-text search (matches customer name, phone number, email, and message), (2) a service-type filter, and (3) a manual \"Refresh\" control that re-fetches inquiries on demand.",
-      "target": "frontend",
+      "text": "Add backend support to collect and store customer feedback submissions (e.g., rating and free-text feedback) from all visitors (including anonymous), and restrict feedback retrieval APIs to authenticated users with admin permission.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-last"
         ],
         "quotes": [
-          "update thhis"
+          "contacts, feedback, behavior, etc."
         ]
       },
       "acceptanceCriteria": [
-        "When the user is authenticated and the Bookings section is visible, a search input is shown and filters the displayed inquiry cards client-side in real time (case-insensitive) across name/phone/email/message.",
-        "A service-type filter control is shown; selecting a service type restricts the displayed inquiries to that service type.",
-        "A Refresh action is available and triggers a refetch so newly submitted inquiries appear without reloading the page.",
-        "If search text is present and the selected service filter would otherwise match results, both filters apply together (intersection).",
-        "All user-facing UI text for the added controls is in English."
+        "Backend exposes a public (guest-accessible) method to submit feedback that stores timestamp, caller principal, and the feedback fields.",
+        "Backend exposes admin-only query methods to retrieve feedback submissions (with pagination/limit).",
+        "Non-admin callers attempting to access feedback retrieval APIs receive an authorization error (trap)."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Add a dedicated frontend React Query hook for retrieving inquiries by service type using the existing backend API, and use it to power the service-type filter so filtering does not require fetching all inquiries when a specific service is selected.",
+      "text": "Add a frontend feedback collection UI that allows visitors to submit feedback (rating + optional written feedback) with clear success/error states, and wire it to the backend feedback submission API.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-last"
         ],
         "quotes": [
-          "update thhis"
+          "contacts, feedback, behavior, etc."
         ]
       },
       "acceptanceCriteria": [
-        "A new hook exists in frontend/src/hooks/useQueries.ts that calls the backend method getInquiriesByServiceType(serviceType) and is keyed distinctly (e.g., includes the service type in the query key).",
-        "When a specific service type filter is selected, the Bookings section uses the service-type query results (not the full list) to render inquiry cards.",
-        "When the service-type filter is cleared (e.g., 'All services'), the Bookings section returns to using the existing getAllInquiries query."
+        "A visible feedback form exists on the site (as a new section or within an appropriate existing section) and is usable on mobile and desktop.",
+        "Submitting valid feedback shows a success confirmation and resets the form.",
+        "Submission failures show an error message without breaking the rest of the page.",
+        "All user-facing text is in English."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Add an authenticated, admin-only frontend view to review collected feedback submissions, including basic filtering/search and a manual refresh control.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-last"
+        ],
+        "quotes": [
+          "contacts, feedback, behavior, etc."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Only admins can see the feedback review section/page; non-admin authenticated users do not see it in navigation and cannot access it via direct UI links.",
+        "The feedback review UI lists recent submissions with timestamp, rating, and feedback text.",
+        "The UI provides at least a text search/filter over feedback content and a refresh button.",
+        "Loading, empty, and error states are handled gracefully."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Add backend support for customer behavior tracking beyond search terms by recording page/section views and key click events, and restrict behavior analytics retrieval APIs to authenticated users with admin permission.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-last"
+        ],
+        "quotes": [
+          "contacts, feedback, behavior, etc."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Backend provides public (guest-accessible) methods to record (a) view events and (b) click events, storing timestamp, caller principal, and event payload fields (e.g., page/section identifier, element/action identifier).",
+        "Backend provides admin-only query methods to retrieve recent view/click events and basic aggregates (e.g., top viewed sections, top clicked actions).",
+        "Non-admin callers attempting to access behavior analytics retrieval APIs receive an authorization error (trap)."
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Instrument the frontend to record behavior events: record a view event when a site section is navigated to via the header navigation/CTA scroll, and record click events for primary CTAs (e.g., “Book Now”) and key interactions (e.g., portfolio item open).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-last"
+        ],
+        "quotes": [
+          "contacts, feedback, behavior, etc."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Using the site navigation to jump to a section results in a corresponding view event being recorded (non-blocking; failures do not disrupt UX).",
+        "Clicking primary CTAs records a click event with a stable action identifier (non-blocking; failures do not disrupt UX).",
+        "Event recording does not noticeably degrade page responsiveness (calls are asynchronous and do not block UI)."
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Add an authenticated, admin-only frontend behavior analytics view that shows recent view/click events and simple aggregates (top sections/actions) with refresh, loading, empty, and error states.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-last"
+        ],
+        "quotes": [
+          "contacts, feedback, behavior, etc."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Only admins can see and access the behavior analytics section/page.",
+        "The view shows at least: (1) a table/list of recent events, and (2) one aggregated “top” table for views and/or clicks.",
+        "The view includes a refresh button and handles loading/empty/error states consistently with the existing Search Analytics section."
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "text": "Ensure contact data collection supports admin review: verify the existing inquiry/contact submissions flow is accessible in an authenticated view, and add an explicit navigation item for admins/users to access inquiries if not already discoverable.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-last"
+        ],
+        "quotes": [
+          "contacts, feedback, behavior, etc."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Authenticated users can access a clear UI entry point to review booking inquiries (contacts/leads).",
+        "The inquiries review UI remains protected behind authentication and behaves correctly when logged out (not rendered or prompts login)."
       ]
     }
   ],
   "constraints": [
-    "Do not edit files under frontend/src/components/ui (compose existing UI components instead).",
-    "Do not modify immutable hook files listed in SYSTEM_CONTEXT (e.g., frontend/src/hooks/useInternetIdentity.ts(x), frontend/src/hooks/useActor.ts, frontend/src/main.tsx).",
-    "Keep the backend as a single Motoko actor in backend/main.mo; do not introduce additional canisters/services."
+    "Backend must remain a single Motoko actor in backend/main.mo (no additional backend services).",
+    "Do not modify files under frontend/src/components/ui (compose existing UI components instead).",
+    "Do not modify immutable hook files listed in SYSTEM_CONTEXT (use existing hooks and add new hooks/utilities in new files if needed).",
+    "All user-facing text must be in English."
   ],
   "nonGoals": [
-    "Adding a new backend data model or changing inquiry persistence (use existing Inquiry model and APIs).",
-    "Implementing real-time updates (no websockets/push).",
-    "Adding third-party integrations (email/SMS/CRM) or external databases."
+    "Integrating third-party analytics providers (e.g., Google Analytics) or external databases.",
+    "Email/SMS notifications or marketing automation workflows.",
+    "Real-time dashboards (no WebSockets/live streaming).",
+    "Third-party authentication providers (only Internet Identity is supported)."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

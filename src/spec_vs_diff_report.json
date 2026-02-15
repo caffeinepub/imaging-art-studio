@@ -1,48 +1,78 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-13T07:27:02.451Z",
-  "summary": "REQ-1 appears mostly implemented (search input with client-side filtering and a service-type filter control). REQ-2 hook is added and BookingsSection switches rendering to the service-type query when selected. However, based on the diff evidence: (a) the UI presence of a manual Refresh control cannot be confirmed from the truncated BookingsSection excerpt, and (b) the code still instantiates/fetches the full getAllInquiries query even when a specific service filter is selected, which conflicts with REQ-2’s intent/AC to avoid fetching all inquiries for filtered views. Two non-requested project/meta files were also modified.",
+  "generatedAt": "2026-02-13T08:55:47.217Z",
+  "summary": "Diff adds new frontend sections for feedback submission, feedback review (admin-gated with search/filter + refresh), and behavior analytics (admin-gated with refresh and top/recent views). Frontend is instrumented to record view/click behavior events. Backend state/migration types for feedback and behavior tracking are added, but the diff excerpt does not provide explicit evidence that the required backend public/admin APIs (including pagination/aggregates and admin-only traps) were implemented.",
   "missing_requirements": [
     {
       "id": "REQ-1",
-      "requirement": "Add a manual \"Refresh\" control in the Booking Inquiries admin section that triggers a refetch so newly submitted inquiries appear without reloading the page.",
-      "reason": "The BookingsSection excerpt shows a handleRefresh() calling refetch and imports RefreshCw, but the diff is truncated before any Refresh UI element (e.g., a Button) is shown. From the provided evidence we cannot confirm the control is actually rendered and accessible to the user.",
+      "requirement": "Backend exposes a public method to submit feedback (stores timestamp, caller principal, rating/text) and admin-only query methods to retrieve feedback with pagination/limit; non-admin retrieval traps.",
+      "reason": "backend/main.mo diff excerpt shows new FeedbackEntry state variables/types but does not show any public submitFeedback method, any admin-only feedback retrieval query with pagination/limit, or explicit authorization traps for feedback retrieval.",
       "evidence": [
-        "frontend/src/components/sections/BookingsSection.tsx (truncated)"
+        "backend/main.mo (truncated)",
+        "backend/migration.mo"
       ]
     },
     {
-      "id": "REQ-2",
-      "requirement": "When a specific service type filter is selected, filtering should not require fetching all inquiries (use the service-type query instead of fetching the full list).",
-      "reason": "BookingsSection always calls useGetAllInquiries() regardless of selectedServiceType. Since useGetAllInquiries is enabled whenever the actor is available, it will fetch the full inquiry list even when a specific service type is selected, undermining the requirement/AC intent to avoid fetching all inquiries for service-filtered views.",
+      "id": "REQ-4",
+      "requirement": "Backend provides public methods to record view and click events, and admin-only query methods to retrieve recent events and basic aggregates (e.g., top viewed sections/top clicked actions); non-admin retrieval traps.",
+      "reason": "backend/main.mo excerpt shows new BehaviorEvent/behaviorTracking state but does not show public record methods nor admin-only retrieval/aggregate query methods or trap-based authorization checks for behavior analytics APIs.",
       "evidence": [
-        "frontend/src/components/sections/BookingsSection.tsx (truncated)",
-        "frontend/src/hooks/useQueries.ts"
+        "backend/main.mo (truncated)",
+        "backend/migration.mo"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Project metadata/state tracking file updated (project_state.json), including adding/recording feature request entries (AR-1, AR-2) and project state versioning.",
-      "reason": "Not requested in the BuildRequest; appears to be internal bookkeeping rather than part of the specified frontend UX/hook changes.",
+      "description": "Added/modified SEO, styling, and theme-related changes (fonts, tailwind tokens, global CSS palette/animations, HTML meta updates).",
+      "reason": "Not requested by any REQ; BuildRequest focuses on feedback/behavior tracking and admin views, and does not ask for UI theming/SEO changes.",
       "evidence": [
-        "project_state.json"
+        "frontend/src/index.css",
+        "frontend/tailwind.config.js",
+        "frontend/index.html"
       ]
     },
     {
-      "description": "Updated/generated repository-wide frontend summaries file (frontend-file-summaries.txt).",
-      "reason": "Not requested in the BuildRequest; appears to be documentation or tooling output rather than a requirement.",
+      "description": "Added accessibility/modal utility hooks (body scroll lock, focus trap) and lightbox/modal behavior changes unrelated to feedback/analytics requirements.",
+      "reason": "Not requested by any REQ; behavior tracking needed portfolio item open instrumentation, but not new modal accessibility hooks/features.",
       "evidence": [
-        "frontend-file-summaries.txt (truncated)"
+        "frontend/src/hooks/useBodyScrollLock.ts",
+        "frontend/src/hooks/useFocusTrap.ts",
+        "frontend/src/components/portfolio/LightboxModal.tsx"
+      ]
+    },
+    {
+      "description": "Footer redesign/changes including UTM-tracked outbound link.",
+      "reason": "Not requested by any REQ.",
+      "evidence": [
+        "frontend/src/components/site/Footer.tsx",
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "description": "Added a standalone backend migration module to evolve actor state.",
+      "reason": "BuildRequest constraints required a single Motoko actor in backend/main.mo; while a migration helper module may still comply, it was not explicitly requested as a feature requirement.",
+      "evidence": [
+        "backend/migration.mo",
+        "backend/main.mo"
       ]
     }
   ],
-  "confidence": 0.66,
+  "confidence": 0.68,
   "changed_files": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/sections/BookingsSection.tsx",
+    "frontend/src/App.tsx",
+    "frontend/src/components/sections/BehaviorAnalyticsSection.tsx",
+    "frontend/src/components/sections/FeedbackReviewSection.tsx",
+    "frontend/src/components/sections/FeedbackSection.tsx",
+    "frontend/src/components/sections/HeroSection.tsx",
+    "frontend/src/components/sections/PortfolioSection.tsx",
+    "frontend/src/components/site/Header.tsx",
     "frontend/src/hooks/useQueries.ts",
+    "frontend/src/utils/behaviorTracking.ts",
     "project_state.json"
   ]
 }

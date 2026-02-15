@@ -1,12 +1,15 @@
 # Specification
 
 ## Summary
-**Goal:** Improve the authenticated “Booking Inquiries” admin UX to make it faster to find, filter, and update the inquiries list.
+**Goal:** Add customer feedback collection and behavior event tracking, with admin-only review/analytics views, and ensure inquiries/contacts are easily accessible for authenticated users.
 
 **Planned changes:**
-- Add a free-text search input to filter displayed inquiry cards client-side (case-insensitive) across customer name, phone number, email, and message.
-- Add a service-type filter control; when a specific service type is selected, fetch and display inquiries for that service type via a dedicated React Query hook.
-- Add a manual “Refresh” control to re-fetch inquiries on demand without a full page reload.
-- Ensure search + service-type filtering work together as an intersection when both are active, and all new UI text is in English.
+- Backend: add public feedback submission API (supports anonymous) and admin-only feedback retrieval APIs with pagination/limits.
+- Frontend: add a feedback form (rating + optional text) with success/error states, connected to the feedback submission API.
+- Frontend: add an authenticated, admin-only feedback review view with list display (timestamp, rating, text), search/filter, refresh, and loading/empty/error states.
+- Backend: add public behavior event recording APIs for section/page views and key click events, plus admin-only analytics retrieval APIs (recent events + simple aggregates).
+- Frontend: instrument navigation/CTAs and key interactions to asynchronously record view/click events without disrupting UX.
+- Frontend: add an authenticated, admin-only behavior analytics view showing recent events and “top” aggregates with refresh and loading/empty/error states.
+- Frontend: verify inquiries/contact submissions review is accessible in an authenticated view and add an explicit navigation entry point if not already discoverable.
 
-**User-visible outcome:** In the Bookings/Booking Inquiries admin section, authenticated users can search inquiries in real time, filter by service type (with targeted fetching), and refresh the list to see newly submitted inquiries without reloading the page.
+**User-visible outcome:** Visitors can submit feedback and the site records basic behavior events in the background; admins can review feedback, view simple behavior analytics, and access inquiries via a clear authenticated navigation entry.

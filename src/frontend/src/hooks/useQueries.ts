@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import type { Inquiry, ServiceType, UserProfile } from '../backend';
+import type { Inquiry, ServiceType, UserProfile, SearchEvent, FeedbackEntry, BehaviorEvent } from '../backend';
 
 // User Profile Queries
 export function useGetCallerUserProfile() {
@@ -100,5 +100,143 @@ export function useIsCallerAdmin() {
       return actor.isCallerAdmin();
     },
     enabled: !!actor && !actorFetching,
+  });
+}
+
+// Search Analytics Mutation
+export function useRecordSearchEvent() {
+  const { actor } = useActor();
+
+  return useMutation({
+    mutationFn: async (search: string) => {
+      if (!actor) return;
+      return actor.recordSearchEvent(search);
+    },
+    // Silent failure - don't show errors to user
+    onError: () => {
+      // Analytics logging failure should not disrupt UX
+    },
+  });
+}
+
+// Search Analytics Queries (admin only)
+export function useGetRecentSearchEvents(limit: bigint) {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<SearchEvent[]>({
+    queryKey: ['searchAnalytics', 'recent', limit.toString()],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getRecentSearchEvents(limit);
+    },
+    enabled: !!actor && !actorFetching,
+  });
+}
+
+export function useGetTopSearchQueries(limit: bigint) {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<Array<[string, bigint]>>({
+    queryKey: ['searchAnalytics', 'top', limit.toString()],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getTopSearchQueries(limit);
+    },
+    enabled: !!actor && !actorFetching,
+  });
+}
+
+// Feedback Submission (public)
+export function useSubmitFeedback() {
+  const { actor } = useActor();
+
+  return useMutation({
+    mutationFn: async (data: { rating: bigint | null; feedbackText: string | null }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.submitFeedback(data.rating, data.feedbackText);
+    },
+  });
+}
+
+// Feedback Retrieval (admin only)
+export function useGetAllFeedback() {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<FeedbackEntry[]>({
+    queryKey: ['feedback'],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getAllFeedback();
+    },
+    enabled: !!actor && !actorFetching,
+  });
+}
+
+export function useGetFeedbackById(id: bigint | null) {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<FeedbackEntry | null>({
+    queryKey: ['feedback', id?.toString()],
+    queryFn: async () => {
+      if (!actor || !id) return null;
+      return actor.getFeedbackById(id);
+    },
+    enabled: !!actor && !actorFetching && !!id,
+  });
+}
+
+// Behavior Tracking Mutation (public, non-blocking)
+export function useRecordBehaviorEvent() {
+  const { actor } = useActor();
+
+  return useMutation({
+    mutationFn: async (data: { eventType: string; details: string }) => {
+      if (!actor) return;
+      return actor.recordBehaviorEvent(data.eventType, data.details);
+    },
+    // Silent failure - don't show errors to user
+    onError: () => {
+      // Behavior tracking failure should not disrupt UX
+    },
+  });
+}
+
+// Behavior Analytics Queries (admin only)
+export function useGetRecentBehaviorEvents(limit: bigint) {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<BehaviorEvent[]>({
+    queryKey: ['behaviorAnalytics', 'recent', limit.toString()],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getRecentBehaviorEvents(limit);
+    },
+    enabled: !!actor && !actorFetching,
+  });
+}
+
+export function useGetTopBehaviorEvents(limit: bigint) {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<Array<[string, bigint]>>({
+    queryKey: ['behaviorAnalytics', 'top', limit.toString()],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getTopBehaviorEvents(limit);
+    },
+    enabled: !!actor && !actorFetching,
+  });
+}
+
+export function useGetBehaviorEventsByType(eventType: string | null) {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<BehaviorEvent[]>({
+    queryKey: ['behaviorAnalytics', 'byType', eventType],
+    queryFn: async () => {
+      if (!actor || !eventType) return [];
+      return actor.getBehaviorEventsByType(eventType);
+    },
+    enabled: !!actor && !actorFetching && !!eventType,
   });
 }

@@ -1,37 +1,14 @@
 import { Camera, Users, Sparkles, Package, Heart, Mountain } from 'lucide-react';
+import { SERVICES } from '@/content/siteContent';
 
-const services = [
-  {
-    icon: Heart,
-    title: 'Wedding Photography',
-    description: 'Capture every precious moment of your special day with our comprehensive wedding photography packages.',
-  },
-  {
-    icon: Users,
-    title: 'Portrait Photography',
-    description: 'Professional portraits that showcase your personality and style, perfect for individuals and families.',
-  },
-  {
-    icon: Sparkles,
-    title: 'Event Photography',
-    description: 'From corporate events to celebrations, we document your occasions with creativity and professionalism.',
-  },
-  {
-    icon: Package,
-    title: 'Product Photography',
-    description: 'High-quality product images that elevate your brand and drive sales with stunning visual appeal.',
-  },
-  {
-    icon: Mountain,
-    title: 'Outdoor Shoots',
-    description: 'Breathtaking outdoor photography sessions in scenic locations, capturing natural beauty and authentic moments.',
-  },
-  {
-    icon: Camera,
-    title: 'Pre-Wedding Shoots',
-    description: 'Romantic and creative pre-wedding photography that tells your unique love story in stunning frames.',
-  },
-];
+const serviceIcons = {
+  'service-wedding': Heart,
+  'service-portrait': Users,
+  'service-event': Sparkles,
+  'service-product': Package,
+  'service-outdoor': Mountain,
+  'service-prewedding': Camera,
+};
 
 export function ServicesSection() {
   return (
@@ -47,12 +24,13 @@ export function ServicesSection() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {services.map((service, index) => {
-            const Icon = service.icon;
+          {SERVICES.map((service) => {
+            const Icon = serviceIcons[service.id as keyof typeof serviceIcons];
             return (
               <div
-                key={index}
-                className="group p-8 bg-card border border-border hover:border-accent/50 transition-all duration-300 hover:shadow-warm"
+                key={service.id}
+                id={service.id}
+                className="group p-8 bg-card border border-border hover:border-accent/50 transition-all duration-300 hover:shadow-warm scroll-mt-24"
               >
                 <div className="mb-6 inline-flex p-4 bg-accent/10 group-hover:bg-accent/20 transition-colors">
                   <Icon size={32} className="text-accent" />

@@ -2,29 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-enhance-the-existing-authenticated-booking-inquiries-admin-section-to-support-quickly-finding-and-updating-the-list-of-inquiries-by-adding-1-a-free-text-search-matches-customer-name-phone-number-email-and-message-2-a-service-type-filter-and-3-a-manual-refresh-control-that-re-fetches-inquiries-on-demand",
-      "featureTitle": "Enhance the existing authenticated \"Booking Inquiries\" admin section to support quickly finding and updating the list of inquiries by adding: (1) a free-text search (matches customer name, phone number, email, and message), (2) a service-type filter, and (3) a manual \"Refresh\" control that re-fetches inquiries on demand.",
+      "featureId": "feature-add-a-frontend-feedback-collection-ui-that-allows-visitors-to-submit-feedback-rating-optional-written-feedback-with-clear-success-error-states-and-wire-it-to-the-backend-feedback-submission-api",
+      "featureTitle": "Add a frontend feedback collection UI that allows visitors to submit feedback (rating + optional written feedback) with clear success/error states, and wire it to the backend feedback submission API.",
       "files": [
-        "frontend/src/components/sections/BookingsSection.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
-      ],
-      "testIds": [
-        "REQ-1"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-a-dedicated-frontend-react-query-hook-for-retrieving-inquiries-by-service-type-using-the-existing-backend-api-and-use-it-to-power-the-service-type-filter-so-filtering-does-not-require-fetching-all-inquiries-when-a-specific-service-is-selected",
-      "featureTitle": "Add a dedicated frontend React Query hook for retrieving inquiries by service type using the existing backend API, and use it to power the service-type filter so filtering does not require fetching all inquiries when a specific service is selected.",
-      "files": [
-        "frontend/src/components/sections/BookingsSection.tsx",
+        "frontend/src/App.tsx",
+        "frontend/src/components/sections/FeedbackSection.tsx",
         "frontend/src/hooks/useQueries.ts"
       ],
       "components": [
@@ -37,6 +19,94 @@
       ],
       "testIds": [
         "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-an-authenticated-admin-only-frontend-view-to-review-collected-feedback-submissions-including-basic-filtering-search-and-a-manual-refresh-control",
+      "featureTitle": "Add an authenticated, admin-only frontend view to review collected feedback submissions, including basic filtering/search and a manual refresh control.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/sections/FeedbackReviewSection.tsx",
+        "frontend/src/components/site/Header.tsx",
+        "frontend/src/hooks/useQueries.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-instrument-the-frontend-to-record-behavior-events-record-a-view-event-when-a-site-section-is-navigated-to-via-the-header-navigation-cta-scroll-and-record-click-events-for-primary-ctas-e-g-book-now-and-key-interactions-e-g-portfolio-item-open",
+      "featureTitle": "Instrument the frontend to record behavior events: record a view event when a site section is navigated to via the header navigation/CTA scroll, and record click events for primary CTAs (e.g., “Book Now”) and key interactions (e.g., portfolio item open).",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/sections/HeroSection.tsx",
+        "frontend/src/components/sections/PortfolioSection.tsx",
+        "frontend/src/components/site/Header.tsx",
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/utils/behaviorTracking.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-an-authenticated-admin-only-frontend-behavior-analytics-view-that-shows-recent-view-click-events-and-simple-aggregates-top-sections-actions-with-refresh-loading-empty-and-error-states",
+      "featureTitle": "Add an authenticated, admin-only frontend behavior analytics view that shows recent view/click events and simple aggregates (top sections/actions) with refresh, loading, empty, and error states.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/sections/BehaviorAnalyticsSection.tsx",
+        "frontend/src/components/site/Header.tsx",
+        "frontend/src/hooks/useQueries.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-6"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-ensure-contact-data-collection-supports-admin-review-verify-the-existing-inquiry-contact-submissions-flow-is-accessible-in-an-authenticated-view-and-add-an-explicit-navigation-item-for-admins-users-to-access-inquiries-if-not-already-discoverable",
+      "featureTitle": "Ensure contact data collection supports admin review: verify the existing inquiry/contact submissions flow is accessible in an authenticated view, and add an explicit navigation item for admins/users to access inquiries if not already discoverable.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/site/Header.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-7"
       ],
       "confidence": "high"
     }

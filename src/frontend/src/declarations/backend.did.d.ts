@@ -10,6 +10,20 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface BehaviorEvent {
+  'id' : bigint,
+  'timestamp' : Time,
+  'details' : string,
+  'caller' : Principal,
+  'eventType' : string,
+}
+export interface FeedbackEntry {
+  'id' : bigint,
+  'feedback' : [] | [string],
+  'timestamp' : Time,
+  'caller' : Principal,
+  'rating' : [] | [bigint],
+}
 export interface Inquiry {
   'id' : bigint,
   'customerName' : string,
@@ -18,6 +32,11 @@ export interface Inquiry {
   'message' : string,
   'timestamp' : Time,
   'phoneNumber' : string,
+}
+export interface SearchEvent {
+  'search' : string,
+  'timestamp' : Time,
+  'caller' : Principal,
 }
 export type ServiceType = { 'event' : null } |
   { 'wedding' : null } |
@@ -33,14 +52,26 @@ export type UserRole = { 'admin' : null } |
 export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'getAllBehaviorEvents' : ActorMethod<[], Array<BehaviorEvent>>,
+  'getAllFeedback' : ActorMethod<[], Array<FeedbackEntry>>,
   'getAllInquiries' : ActorMethod<[], Array<Inquiry>>,
+  'getAverageRating' : ActorMethod<[], [] | [number]>,
+  'getBehaviorEventsByType' : ActorMethod<[string], Array<BehaviorEvent>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getFeedbackById' : ActorMethod<[bigint], [] | [FeedbackEntry]>,
   'getInquiriesByServiceType' : ActorMethod<[ServiceType], Array<Inquiry>>,
   'getInquiryById' : ActorMethod<[bigint], [] | [Inquiry]>,
+  'getRecentBehaviorEvents' : ActorMethod<[bigint], Array<BehaviorEvent>>,
+  'getRecentSearchEvents' : ActorMethod<[bigint], Array<SearchEvent>>,
+  'getTopBehaviorEvents' : ActorMethod<[bigint], Array<[string, bigint]>>,
+  'getTopSearchQueries' : ActorMethod<[bigint], Array<[string, bigint]>>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
+  'recordBehaviorEvent' : ActorMethod<[string, string], bigint>,
+  'recordSearchEvent' : ActorMethod<[string], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'submitFeedback' : ActorMethod<[[] | [bigint], [] | [string]], bigint>,
   'submitInquiry' : ActorMethod<
     [ServiceType, string, string, string, string],
     bigint
